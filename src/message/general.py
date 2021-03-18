@@ -94,6 +94,15 @@ def endSticker():
     
     return sticker_message 
 
+def defaultSticker():
+    sticker_list = []
+    sticker_list.append( StickerSendMessage(package_id = "11537", sticker_id = "52002746") )
+    sticker_list.append( StickerSendMessage(package_id = "11537", sticker_id = "52002770") )
+    sticker_list.append( StickerSendMessage(package_id = "11537", sticker_id = "52002769") )
+    
+    sticker_message = sticker_list[ random.randint(0, len(sticker_list) - 1)]
+    return sticker_message
+
 def defaultMessage():
     text_message = TextSendMessage(text = "ฟังก์ชั่นดังกล่าวยังไม่เปิดให้บริการ \nขออภัยด้วยน้า เค้ากำลังเรียนรู้อยู่")
     return text_message

@@ -4,7 +4,10 @@ from config import *
 
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError 
-from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageMessage, LocationMessage
+from linebot.models import TextMessage, TextSendMessage, ImageMessage, LocationMessage, StickerMessage
+
+# Event
+from linebot.models import MessageEvent, FollowEvent
 
 from message.general import *
 from detect_intent import detectIntentText
@@ -104,10 +107,11 @@ def handle_text(event):
             )
     else:
         default_msg = defaultMessage()
+        default_stk = defaultSticker()
 
         line_bot_api.reply_message(
             event.reply_token,
-            default_msg
+            [default_stk, default_msg]
             )
 
 @handler.add(MessageEvent, message = LocationMessage)
@@ -137,6 +141,43 @@ def handle_image(event):
     line_bot_api.reply_message(
         event.reply_token,
         getlocation_msg
+        )
+
+@handler.add(MessageEvent, message = StickerMessage)
+def handle_sticker(event):
+
+    keywords_list = event.message.keywords
+    
+    if ("hi" in keywords_list) or ("Hello" in keywords_list) or ("HEY" in keywords_list) :        
+        greeting_msg = greetingMessage()
+        objective_msg = objectiveMessage()
+        getname_msg = getName()
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            [greeting_msg, objective_msg, getname_msg]
+            )
+    else:
+        end_msg = endSticker()
+        text_msg = TextSendMessage(text = "ถ้าอยากส่งห้อง clean room ก็พิมพ์ \"สวัสดี\" หรือทักทายมาได้น้า")
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            [end_msg, text_msg]
+            )
+
+@handler.add(FollowEvent)
+def handle_follow(event):
+    
+    profile = line_bot_api.get_profile(event.source.user_id)
+    follow_message = "สวัสดีค่าาา คุณ "+str(profile.display_name)+" \uDBC0\uDC5F"+ "\nขอบคุณที่เป็นเพื่อนกับ น้องมีนานะคะ"+ "\n\n"+"มีนา เป็นบอทที่ช่วยรวบรวมข้อมูล cleanroom หรือ สถานที่/ร้านที่มีห้องสะอาด/เครื่องฟอกอากาศ จากประชาชน \uDBC0\uDC7F"
+    follow_msg = TextSendMessage(text = follow_message)
+    objective_msg = objectiveMessage()
+    getname_msg = getName()
+    
+    line_bot_api.reply_message(
+            event.reply_token,
+            [follow_msg, objective_msg, getname_msg]
         )
 
 @handler.default()
